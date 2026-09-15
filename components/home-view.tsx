@@ -83,18 +83,16 @@ export default function HomeView({
         </p>
 
         <p className="mt-4 whitespace-pre-line leading-relaxed text-muted">
-          {`${profile.futureAge}歳のあなたが今日へ戻ってきたら、\n何をしたいでしょう？`}
+          {`もし${profile.futureAge}歳のあなたが今日に戻ってきたら、\n何を思うでしょう。`}
         </p>
 
         <div className="mt-10">
           {isEditing ? (
             <form onSubmit={handleSave}>
               <label htmlFor="home-textarea" className="sr-only">
-                今日、何をしたいですか？
+                今、思ったこと
               </label>
-              {!reflection && (
-                <p className="mb-3 text-sm font-medium">今日、何をしたいですか？</p>
-              )}
+              <p className="mb-3 text-xs text-muted">書かなくても大丈夫です。</p>
               <textarea
                 id="home-textarea"
                 autoFocus
