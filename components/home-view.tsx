@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import OnboardingFlow, { STORAGE_EXPLANATION } from "@/components/onboarding-flow";
+import OnboardingFlow, { STORAGE_EXPLANATION_SHORT } from "@/components/onboarding-flow";
 import { computeFutureAge, currentAgeYears, todayISO } from "@/lib/age";
 import { getReflectionByDate, saveProfile, saveReflection } from "@/lib/storage";
 import type { DailyReflection, UserProfile } from "@/lib/types";
@@ -111,7 +111,7 @@ export default function HomeView({
               {saveError && (
                 <p className="mt-3 whitespace-pre-line text-sm text-accent">{SAVE_ERROR_MESSAGE}</p>
               )}
-              <p className="mt-3 text-xs leading-relaxed text-muted">{STORAGE_EXPLANATION}</p>
+              <p className="mt-3 text-xs leading-relaxed text-muted">{STORAGE_EXPLANATION_SHORT}</p>
               <div className="mt-4 flex gap-3">
                 <button
                   type="submit"

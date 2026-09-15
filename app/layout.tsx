@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import AppShell from "@/components/app-shell";
 import { NavVisibilityProvider } from "@/components/nav-visibility";
 import "./globals.css";
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <NavVisibilityProvider>
           <AppShell>{children}</AppShell>
         </NavVisibilityProvider>
+        <Analytics />
       </body>
     </html>
   );

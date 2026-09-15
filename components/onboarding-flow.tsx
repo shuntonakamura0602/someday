@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { track } from "@vercel/analytics";
 import { useHideNav } from "@/components/nav-visibility";
 import { computeFutureAge, currentAgeYears, todayISO } from "@/lib/age";
 import {
@@ -20,6 +21,8 @@ const MAX_NOTE_LENGTH = 300;
 
 export const STORAGE_EXPLANATION =
   "生年月日と記録は、このブラウザーにだけ保存されます（サーバーには送信されません）。別の端末には引き継がれません。ブラウザーのデータを消去したり、プライベートブラウズを終了したりすると失われる場合があります。";
+
+export const STORAGE_EXPLANATION_SHORT = "この記録もブラウザーにだけ保存されます。";
 
 export default function OnboardingFlow({
   onFinish,
@@ -58,6 +61,12 @@ export default function OnboardingFlow({
     setReady(true);
   }, [mode]);
 
+  useEffect(() => {
+    if (!ready) return;
+    // Step names and completion ratio only — never the birthdate or note text.
+    track("onboarding_step", { step, mode });
+  }, [ready, step, mode]);
+
   const currentAge = birthDate ? currentAgeYears(birthDate) : 0;
   const futureAge = computeFutureAge(currentAge);
 
@@ -92,13 +101,15 @@ export default function OnboardingFlow({
   }
 
   function finish() {
-    if (noteText.trim()) {
+    const wroteNote = Boolean(noteText.trim());
+    if (wroteNote) {
       saveReflection(todayISO(), noteText.trim());
     }
     if (mode === "full") {
       markOnboardingCompleted();
       clearOnboardingDraft();
     }
+    track("onboarding_complete", { wroteNote, mode });
     setStep("end");
   }
 
@@ -262,7 +273,7 @@ export default function OnboardingFlow({
             <div className="mt-2 text-right text-xs text-muted">
               {noteText.length} / {MAX_NOTE_LENGTH}
             </div>
-            <p className="mt-4 text-xs leading-relaxed text-muted">{STORAGE_EXPLANATION}</p>
+            <p className="mt-4 text-xs leading-relaxed text-muted">{STORAGE_EXPLANATION_SHORT}</p>
             <button
               type="submit"
               className="mt-8 w-full rounded-full bg-foreground text-background px-7 py-3 text-sm font-medium"

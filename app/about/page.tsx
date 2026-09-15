@@ -14,6 +14,9 @@ export default function AboutPage() {
         <p className="mt-10 whitespace-pre-line text-sm leading-relaxed text-muted">
           {"生年月日と記録は、このブラウザーにだけ保存されます（サーバーには送信されません）。\n別の端末には引き継がれません。\nブラウザーのデータを消去したり、プライベートブラウズを終了したりすると失われる場合があります。"}
         </p>
+        <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-muted">
+          {"どの画面がどれくらい見られているかだけを、個人を特定しない形で集計しています。生年月日や記録の内容が送信されることはありません。"}
+        </p>
       </div>
     </div>
   );
