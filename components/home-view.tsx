@@ -8,10 +8,10 @@ import type { DailyReflection, UserProfile } from "@/lib/types";
 
 const MAX_TODAY_LENGTH = 300;
 
-const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
+const DATE_FORMATTER = new Intl.DateTimeFormat("ja-JP", {
+  year: "numeric",
   month: "long",
   day: "numeric",
-  year: "numeric",
 });
 
 const SAVE_ERROR_MESSAGE =
@@ -79,7 +79,7 @@ export default function HomeView({
         <p className="text-sm text-muted">{DATE_FORMATTER.format(new Date())}</p>
 
         <p className="mt-6 text-3xl font-medium tracking-tight">
-          You are <span className="text-accent">{currentAge} years old.</span>
+          あなたは<span className="text-accent">{currentAge}歳</span>です。
         </p>
 
         <p className="mt-4 whitespace-pre-line leading-relaxed text-muted">
@@ -150,7 +150,7 @@ export default function HomeView({
                   aria-label="今日の記録を編集する"
                   className="mt-3 text-sm text-muted underline underline-offset-2 hover:text-foreground"
                 >
-                  Edit
+                  編集する
                 </button>
               </div>
             )
