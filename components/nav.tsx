@@ -5,12 +5,10 @@ import { usePathname } from "next/navigation";
 import { useNavVisibility } from "@/components/nav-visibility";
 
 const LINKS = [
-  { href: "/", label: "Today" },
-  { href: "/life", label: "Life" },
-  { href: "/memories", label: "Memories" },
+  { href: "/", label: "今日" },
+  { href: "/memories", label: "ひと言" },
+  { href: "/about", label: "Somedayについて" },
 ];
-
-const DESKTOP_LINKS = [...LINKS, { href: "/about", label: "About" }];
 
 export default function Nav() {
   const pathname = usePathname();
@@ -28,7 +26,7 @@ export default function Nav() {
           Someday
         </Link>
         <nav aria-label="Main navigation" className="flex items-center gap-7">
-          {DESKTOP_LINKS.map((link) => {
+          {LINKS.map((link) => {
             const active = pathname === link.href;
             return (
               <Link

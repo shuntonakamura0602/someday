@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { currentAgeYears, todayISO } from "@/lib/age";
-import { saveReflection } from "@/lib/storage";
+import OnboardingFlow, { STORAGE_EXPLANATION } from "@/components/onboarding-flow";
+import { computeFutureAge, currentAgeYears, todayISO } from "@/lib/age";
+import { getReflectionByDate, saveProfile, saveReflection } from "@/lib/storage";
 import type { DailyReflection, UserProfile } from "@/lib/types";
 
 const MAX_TODAY_LENGTH = 300;
@@ -13,25 +14,63 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
+const SAVE_ERROR_MESSAGE =
+  "保存できませんでした。\n入力した内容は、この画面に残っています。\nもう一度お試しください。";
+
 export default function HomeView({
   profile,
   initialReflection,
+  onProfileChange,
 }: {
   profile: UserProfile;
   initialReflection: DailyReflection | null;
+  onProfileChange: (profile: UserProfile) => void;
 }) {
   const [reflection, setReflection] = useState(initialReflection);
   const [isEditing, setIsEditing] = useState(!initialReflection);
   const [text, setText] = useState(initialReflection?.text ?? "");
+  const [saveError, setSaveError] = useState(false);
+  const [isCorrecting, setIsCorrecting] = useState(false);
+  const [birthDateInput, setBirthDateInput] = useState(profile.birthDate);
+  const [isReplaying, setIsReplaying] = useState(false);
 
   const currentAge = currentAgeYears(profile.birthDate);
 
   function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!text.trim()) return;
-    const saved = saveReflection(todayISO(), text.trim());
-    setReflection(saved);
+    const result = saveReflection(todayISO(), text.trim());
+    if (!result.ok) {
+      setSaveError(true);
+      return;
+    }
+    setSaveError(false);
+    setReflection(result.entry);
     setIsEditing(false);
+  }
+
+  function handleBirthDateCorrection(e: React.FormEvent) {
+    e.preventDefault();
+    if (!birthDateInput) return;
+    const age = currentAgeYears(birthDateInput);
+    const updated: UserProfile = { birthDate: birthDateInput, futureAge: computeFutureAge(age) };
+    saveProfile(updated);
+    onProfileChange(updated);
+    setIsCorrecting(false);
+  }
+
+  if (isReplaying) {
+    return (
+      <OnboardingFlow
+        mode="replay"
+        initialBirthDate={profile.birthDate}
+        onFinish={() => {
+          setReflection(getReflectionByDate(todayISO()));
+          setIsEditing(false);
+          setIsReplaying(false);
+        }}
+      />
+    );
   }
 
   return (
@@ -71,6 +110,10 @@ export default function HomeView({
               <div className="mt-2 text-right text-xs text-muted">
                 {text.length} / {MAX_TODAY_LENGTH}
               </div>
+              {saveError && (
+                <p className="mt-3 whitespace-pre-line text-sm text-accent">{SAVE_ERROR_MESSAGE}</p>
+              )}
+              <p className="mt-3 text-xs leading-relaxed text-muted">{STORAGE_EXPLANATION}</p>
               <div className="mt-4 flex gap-3">
                 <button
                   type="submit"
@@ -85,6 +128,7 @@ export default function HomeView({
                     onClick={() => {
                       setText(reflection.text);
                       setIsEditing(false);
+                      setSaveError(false);
                     }}
                     className="rounded-full border border-border px-5 py-3 text-sm text-muted"
                   >
@@ -110,6 +154,60 @@ export default function HomeView({
                 </button>
               </div>
             )
+          )}
+        </div>
+
+        <div className="mt-14 space-y-3 border-t border-border pt-8">
+          <button
+            type="button"
+            onClick={() => setIsReplaying(true)}
+            className="block text-sm text-muted underline underline-offset-2 hover:text-foreground"
+          >
+            もう一度、未来から今日を見る
+          </button>
+
+          {isCorrecting ? (
+            <form onSubmit={handleBirthDateCorrection} className="pt-2">
+              <label htmlFor="birthdate-correction" className="block text-sm text-muted">
+                生年月日を訂正する
+              </label>
+              <input
+                id="birthdate-correction"
+                type="date"
+                required
+                max={todayISO()}
+                value={birthDateInput}
+                onChange={(e) => setBirthDateInput(e.target.value)}
+                className="mt-2 w-full rounded-xl border border-border bg-transparent px-4 py-3 text-base text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+              <div className="mt-3 flex gap-3">
+                <button
+                  type="submit"
+                  disabled={!birthDateInput}
+                  className="rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-medium disabled:opacity-40"
+                >
+                  更新する
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBirthDateInput(profile.birthDate);
+                    setIsCorrecting(false);
+                  }}
+                  className="rounded-full border border-border px-5 py-2.5 text-sm text-muted"
+                >
+                  キャンセル
+                </button>
+              </div>
+            </form>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsCorrecting(true)}
+              className="block text-sm text-muted underline underline-offset-2 hover:text-foreground"
+            >
+              生年月日を訂正する
+            </button>
           )}
         </div>
       </div>
