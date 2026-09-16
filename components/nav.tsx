@@ -3,16 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useNavVisibility } from "@/components/nav-visibility";
-
-const LINKS = [
-  { href: "/", label: "今日" },
-  { href: "/memories", label: "ひと言" },
-  { href: "/about", label: "Somedayについて" },
-];
+import { useDict, useLocale } from "@/lib/i18n/locale-context";
 
 export default function Nav() {
   const pathname = usePathname();
   const { hidden } = useNavVisibility();
+  const locale = useLocale();
+  const t = useDict().nav;
+
+  const LINKS = [
+    { href: `/${locale}`, label: t.today },
+    { href: `/${locale}/memories`, label: t.notes },
+    { href: `/${locale}/about`, label: t.about },
+  ];
 
   if (hidden) return null;
 
@@ -20,7 +23,7 @@ export default function Nav() {
     <>
       <header className="hidden md:flex items-center justify-between px-8 py-5 border-b border-border">
         <Link
-          href="/"
+          href={`/${locale}`}
           className="text-[15px] font-medium tracking-tight text-foreground"
         >
           Someday

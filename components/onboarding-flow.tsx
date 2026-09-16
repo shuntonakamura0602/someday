@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { track } from "@vercel/analytics";
 import { useHideNav } from "@/components/nav-visibility";
+import { useDict } from "@/lib/i18n/locale-context";
 import { computeFutureAge, currentAgeYears, todayISO } from "@/lib/age";
 import {
   clearOnboardingDraft,
@@ -19,11 +20,6 @@ type Step = "landing" | "birthdate" | OnboardingStep | "end";
 
 const MAX_NOTE_LENGTH = 300;
 
-export const STORAGE_EXPLANATION =
-  "生年月日と記録は、このブラウザーにだけ保存されます（サーバーには送信されません）。別の端末には引き継がれません。ブラウザーのデータを消去したり、プライベートブラウズを終了したりすると失われる場合があります。";
-
-export const STORAGE_EXPLANATION_SHORT = "この記録もブラウザーにだけ保存されます。";
-
 export default function OnboardingFlow({
   onFinish,
   mode = "full",
@@ -34,6 +30,8 @@ export default function OnboardingFlow({
   initialBirthDate?: string;
 }) {
   useHideNav(true);
+  const dict = useDict();
+  const t = dict.onboarding;
 
   const [ready, setReady] = useState(mode === "replay");
   const [step, setStep] = useState<Step>(mode === "replay" ? "future" : "landing");
@@ -122,20 +120,20 @@ export default function OnboardingFlow({
       {step === "landing" && (
         <Screen>
           <h1 className="animate-fade-in whitespace-pre-line text-2xl sm:text-3xl font-medium tracking-tight leading-relaxed">
-            {"いつか、今日の何でもない時間を、\n懐かしく思うかもしれません。"}
+            {t.landing.title}
           </h1>
           <p
             className="animate-fade-in mt-6 text-muted leading-relaxed"
             style={{ animationDelay: "0.3s" }}
           >
-            少し先の未来から、今日を眺める短い体験です。
+            {t.landing.subtitle}
           </p>
           <button
             onClick={() => setStep("birthdate")}
             className="animate-fade-in mt-12 rounded-full bg-foreground text-background px-7 py-3 text-sm font-medium"
             style={{ animationDelay: "0.6s" }}
           >
-            はじめる
+            {t.landing.cta}
           </button>
         </Screen>
       )}
@@ -143,16 +141,12 @@ export default function OnboardingFlow({
       {step === "birthdate" && (
         <Screen>
           <form onSubmit={handleBirthDateSubmit} className="animate-fade-in w-full">
-            <h2 className="text-2xl font-medium tracking-tight">
-              あなたはいつ生まれましたか？
-            </h2>
-            <p className="mt-3 leading-relaxed text-muted">
-              あなたの年齢に合わせて、
-              <br />
-              少し先の未来を想像します。
+            <h2 className="text-2xl font-medium tracking-tight">{t.birthdate.question}</h2>
+            <p className="mt-3 whitespace-pre-line leading-relaxed text-muted">
+              {t.birthdate.explanation}
             </p>
             <label htmlFor="birthdate-input" className="sr-only">
-              生年月日
+              {t.birthdate.srLabel}
             </label>
             <input
               id="birthdate-input"
@@ -163,13 +157,13 @@ export default function OnboardingFlow({
               onChange={(e) => setBirthDate(e.target.value)}
               className="mt-8 w-full rounded-xl border border-border bg-transparent px-4 py-3 text-base text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             />
-            <p className="mt-4 text-xs leading-relaxed text-muted">{STORAGE_EXPLANATION}</p>
+            <p className="mt-4 text-xs leading-relaxed text-muted">{dict.storage.full}</p>
             <button
               type="submit"
               disabled={!birthDate}
               className="mt-8 w-full rounded-full bg-foreground text-background px-7 py-3 text-sm font-medium disabled:opacity-40"
             >
-              続ける
+              {t.birthdate.continue}
             </button>
           </form>
         </Screen>
@@ -179,31 +173,31 @@ export default function OnboardingFlow({
         <Screen>
           <div className="space-y-6">
             <p className="animate-fade-in whitespace-pre-line leading-relaxed text-lg">
-              {`${futureAge}歳になった自分を、\n少しだけ想像してみてください。`}
+              {t.future.title(futureAge)}
             </p>
             <p
               className="animate-fade-in whitespace-pre-line leading-relaxed text-muted"
               style={{ animationDelay: "0.6s" }}
             >
-              {`思い出しているのは、今の年齢の頃の、\n何でもない一日。`}
+              {t.future.body1}
             </p>
             <p
               className="animate-fade-in whitespace-pre-line leading-relaxed text-muted"
               style={{ animationDelay: "1.2s" }}
             >
-              {"いつもの部屋。聞き慣れた声。\n帰り道に見上げた空。"}
+              {t.future.body2}
             </p>
             <p
               className="animate-fade-in whitespace-pre-line leading-relaxed"
               style={{ animationDelay: "1.8s" }}
             >
-              {`未来のあなたが懐かしく思うとしたら、\nどんな場面でしょう。`}
+              {t.future.body3}
             </p>
             <p
               className="animate-fade-in leading-relaxed text-muted"
               style={{ animationDelay: "2.4s" }}
             >
-              何も浮かばなくても、大丈夫です。
+              {t.future.reassure}
             </p>
           </div>
           <button
@@ -211,7 +205,7 @@ export default function OnboardingFlow({
             className="animate-fade-in mt-12 rounded-full bg-foreground text-background px-7 py-3 text-sm font-medium"
             style={{ animationDelay: "3s" }}
           >
-            今日へ戻る
+            {t.future.cta}
           </button>
         </Screen>
       )}
@@ -219,20 +213,20 @@ export default function OnboardingFlow({
       {step === "returnToday" && (
         <Screen>
           <p className="animate-fade-in whitespace-pre-line leading-relaxed text-lg">
-            今日は、まだここにあります。
+            {t.returnToday.title}
           </p>
           <p
             className="animate-fade-in mt-6 whitespace-pre-line leading-relaxed text-muted"
             style={{ animationDelay: "0.4s" }}
           >
-            {"特別な一日にしなくても大丈夫。\nこのあとも、あなたの今日が続きます。"}
+            {t.returnToday.body}
           </p>
           <button
             onClick={finish}
             className="animate-fade-in mt-12 w-full sm:w-auto rounded-full bg-foreground text-background px-7 py-3 text-sm font-medium"
             style={{ animationDelay: "0.9s" }}
           >
-            今日に戻る
+            {t.returnToday.cta}
           </button>
           <button
             type="button"
@@ -240,7 +234,7 @@ export default function OnboardingFlow({
             className="animate-fade-in mt-6 block text-sm text-muted underline underline-offset-2 hover:text-foreground"
             style={{ animationDelay: "1.2s" }}
           >
-            何か浮かんだら、ひと言だけ残す
+            {t.returnToday.noteLink}
           </button>
         </Screen>
       )}
@@ -254,12 +248,12 @@ export default function OnboardingFlow({
             }}
             className="animate-fade-in w-full"
           >
-            <p className="leading-relaxed text-lg">今、少し心に浮かんだことはありますか。</p>
+            <p className="leading-relaxed text-lg">{t.note.question}</p>
             <p className="mt-3 whitespace-pre-line leading-relaxed text-muted">
-              {"何かをする約束でなくて大丈夫。\n書かずに終えてもかまいません。"}
+              {t.note.reassure}
             </p>
             <label htmlFor="note-textarea" className="sr-only">
-              心に浮かんだこと
+              {t.note.srLabel}
             </label>
             <textarea
               id="note-textarea"
@@ -273,12 +267,12 @@ export default function OnboardingFlow({
             <div className="mt-2 text-right text-xs text-muted">
               {noteText.length} / {MAX_NOTE_LENGTH}
             </div>
-            <p className="mt-4 text-xs leading-relaxed text-muted">{STORAGE_EXPLANATION_SHORT}</p>
+            <p className="mt-4 text-xs leading-relaxed text-muted">{dict.storage.short}</p>
             <button
               type="submit"
               className="mt-8 w-full rounded-full bg-foreground text-background px-7 py-3 text-sm font-medium"
             >
-              終える
+              {t.note.cta}
             </button>
           </form>
         </Screen>
@@ -287,14 +281,14 @@ export default function OnboardingFlow({
       {step === "end" && (
         <Screen>
           <p className="animate-fade-in whitespace-pre-line leading-relaxed text-2xl font-medium tracking-tight">
-            {"また、いつか。\nこの画面は、ここで閉じて大丈夫です。"}
+            {t.end.title}
           </p>
           <button
             onClick={onFinish}
             className="animate-fade-in mt-14 text-sm text-muted underline underline-offset-2 hover:text-foreground"
             style={{ animationDelay: "0.9s" }}
           >
-            今日のページを見る
+            {t.end.link}
           </button>
         </Screen>
       )}
