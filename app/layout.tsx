@@ -26,6 +26,10 @@ export const metadata: Metadata = {
     description:
       "A quiet place to see today from the perspective of your future self.",
   },
+  appleWebApp: {
+    title: "Someday",
+    statusBarStyle: "default",
+  },
 };
 
 export const viewport: Viewport = {
